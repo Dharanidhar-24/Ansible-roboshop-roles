@@ -1,0 +1,4 @@
+MONGODB_HOST: mongodb.daws86s.fun
+
+
+# Here we can define the common variables which can be used for this deployment.

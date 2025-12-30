@@ -1,0 +1,47 @@
+- name: create ec2 and route53
+  hosts: localhost
+  connection: local
+  vars: 
+    ami_id: ami-09c813fb71547fc4f
+    sg_id: sg-020423da8fc378e44
+    zone_id: "Z0803677SZ6F3YQK4KAM" # DNS zone id
+    domain_name: "dhar.fun"
+    # we can comment instances and pass through command line using -e "instances=['mongodb','redis','cart']"
+    instances:
+    - mongodb
+  tasks:
+  - name: create EC2 instances
+    amazon.aws.ec2_instance:
+      name: "{{ item }}" # item is the keyword to refer list of variables in loop
+      instance_type: t3.micro
+      security_group: "{{ sg_id }}"
+      image_id: "{{ ami_id }}"
+      tags:
+        Name: "{{ item }}" # it will display the name 
+    loop: "{{ instances }}"
+    register: ec2_output
+
+# Here we are just using this to get ip address this is not necessary just for practice purpose only
+  - name: print the ec2_output
+    ansible.builtin.debug:
+      msg: "{{ ec2_output }}"
+
+  - name: print public_ip
+    ansible.builtin.debug: 
+      msg: "{{ item.instances[0].public_ip_address }}" # here instances may be multiple while referring we need to do like this
+    loop: "{{ ec2_output.results }}" # Here we are taking whole results to get all details 
+  
+  - name: print private_ip
+    ansible.builtin.debug:
+      msg: "{{ item.instances[0].private_ip_address }}"
+    loop: "{{ ec2_output.results }}"
+
+  - name: create route53 record
+    amazon.aws.route53:
+      state: present
+      zone: "{{ domain_name }}"
+      record: "{{ item.item }}.{{ domain_name }}" # mongodb.dhar.fun # here first item is for reffereing variable in loop and 2nd is for to get item details in the ec2_output. 
+      type: A
+      value: "{{ item.instances[0].private_ip_address }}" # need to provide ip address
+      overwrite: true
+    loop: "{{ ec2_output.results }}"

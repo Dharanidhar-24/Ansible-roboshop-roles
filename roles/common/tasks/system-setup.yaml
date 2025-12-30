@@ -1,0 +1,30 @@
+- name: copy {{ component }} service
+# We used template instead of copy because it will open the jinja2 format files and replace the placeholders and copy the file
+  ansible.builtin.template: 
+    src: "{{ component }}.service.j2"
+    dest: "/etc/systemd/system/{{ component }}.service"
+  notify: daemon reload # Here if there is any change is service file it will notify the daemon reload task in handlers and it will execute it.
+
+  # Main important thing it notify name(daemon reload) and the handlers task name (daemon reload) should match.
+
+- name: start the service
+  ansible.builtin.service:
+    name: "{{ component }}"
+    state: restarted
+    enabled: yes
+
+
+
+#when there is a change in something notify others to reload this we will called as notifiers or handlers
+
+# template
+# ==========
+# fixed form with placeholders
+
+# templatising file is nothing but keeping the placeholders, submitting the actual values at runtime.
+
+# jinja2 templating
+
+# ansible templates are jinja2 formatted files, there will be placeholders inside the file, actual values will be submitted at runtime and copied to remote server
+
+# Here templates are fixed but the hostname or any other thing will changing which is given by accordingly so we will keep code in templates rather than files
