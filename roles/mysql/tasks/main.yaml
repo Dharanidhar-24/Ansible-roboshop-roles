@@ -10,5 +10,8 @@
     enabled: yes
 
 - name: setup root password
-  ansible.builtin.command: mysql_secure_installation --set-root-pass RoboShop@1
+  ansible.builtin.command: mysql_secure_installation --set-root-pass {{ MYSQL_ROOT_PASSWORD }}
+
+  # Here instead of giving direct password we stored password in vault. 
+  # In vault we given as ==> MYSQL_ROOT_PASSWORD=Roboshop@1
     
