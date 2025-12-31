@@ -5,7 +5,7 @@
     dest: "/etc/systemd/system/{{ component }}.service"
   notify: daemon reload # Here if there is any change is service file it will notify the daemon reload task in handlers and it will execute it.
 
-  # Main important thing it notify name(daemon reload) and the handlers task name (daemon reload) should match.
+  # Main important thing is notify name(daemon reload) and the handlers task name (daemon reload) should match.
 
 - name: start the service
   ansible.builtin.service:
